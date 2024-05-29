@@ -35,13 +35,6 @@ class DatabaseDataCollector extends DataCollector
         $this->resetData();
     }
 
-    /**
-     * @param string $name
-     * @param array $data
-     * @param Session $session
-     *
-     * @return void
-     */
     public function execute(string $name, array $data, Session $session): void
     {
         switch ($name) {
@@ -81,51 +74,31 @@ class DatabaseDataCollector extends DataCollector
         }
     }
 
-    /**
-     * Return the list of queries sent.
-     *
-     * @return array
-     */
+    /** Return the list of queries sent. */
     public function getQueries(): array
     {
         return $this->data['queries'];
     }
 
-    /**
-     * Return the number of queries sent.
-     *
-     * @return integer
-     */
+    /** Return the number of queries sent. */
     public function getQuerycount(): int
     {
         return is_countable($this->data['queries']) ? count($this->data['queries']) : 0;
     }
 
-    /**
-     * Return queries total time.
-     *
-     * @return float
-     */
+    /** Return queries total time. */
     public function getTime(): float
     {
         return $this->data['time'];
     }
 
-    /**
-     * Return sql exception.
-     *
-     * @return SqlException|null
-     */
+    /** Return sql exception. */
     public function getException(): ?SqlException
     {
         return $this->data['exception'];
     }
 
-    /**
-     * Return profiler identifier.
-     *
-     * @return string
-     */
+    /** Return profiler identifier. */
     public function getName(): string
     {
         return 'pomm';

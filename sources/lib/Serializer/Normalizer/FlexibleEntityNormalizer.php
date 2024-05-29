@@ -15,19 +15,22 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class FlexibleEntityNormalizer implements NormalizerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function normalize(mixed $object, string $format = null, array $context = array()): array
     {
         return $object->extract();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsNormalization(mixed $data, string $format = null): bool
+    /** {@inheritdoc} */
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof FlexibleEntityInterface;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            FlexibleEntityInterface::class => true,
+        ];
     }
 }

@@ -30,8 +30,6 @@ class DatabaseCollectorConfigurator
     }
 
     /**
-     * @param Pomm $pomm
-     * @return void
      * @throws FoundationException
      */
     public function configure(Pomm $pomm): void
