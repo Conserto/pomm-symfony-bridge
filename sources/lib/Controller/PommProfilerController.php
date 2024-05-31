@@ -8,16 +8,21 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\SymfonyBridge\Controller;
 
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Pomm;
 use PommProject\Foundation\QueryManager\QueryManagerClient;
 use PommProject\SymfonyBridge\DatabaseDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use PommProject\Foundation\Pomm;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 /**
  * Controllers for the Pomm profiler extension.
@@ -36,25 +41,25 @@ class PommProfilerController
     /**
      * Controller to explain a SQL query.
      *
-     * @param Request $request
-     * @param string $token
-     * @param int $index_query
-     *
-     * @return Response
+     * @throws FoundationException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function explainAction(Request $request, string $token, int $index_query): Response
     {
         $panel = 'pomm';
-        $page  = 'home';
+        $page = 'home';
 
         if (!($profile = $this->profiler->loadProfile($token))) {
+            $profileType = $request->query->get('type', 'request');
             return new Response(
                 $this->twig->render(
                     '@WebProfiler/Profiler/info.html.twig',
-                    array('about' => 'no_token', 'token' => $token)
+                    ['about' => 'no_token', 'token' => $token, 'request' => $request, 'profile_type' => $profileType]
                 ),
                 200,
-                array('Content-Type' => 'text/html')
+                ['Content-Type' => 'text/html']
             );
         }
 
@@ -79,7 +84,7 @@ class PommProfilerController
 
         $explain = $queryManager->query(sprintf("explain %s", $query_data['sql']), $query_data['parameters']);
 
-        return new Response($this->twig->render('@Pomm/Profiler/explain.html.twig', array(
+        return new Response($this->twig->render('@Pomm/Profiler/explain.html.twig', [
             'token' => $token,
             'profile' => $profile,
             'collector' => $databaseDataCollector,
@@ -88,6 +93,6 @@ class PommProfilerController
             'request' => $request,
             'query_index' => $index_query,
             'explain' => $explain,
-        )), 200, array('Content-Type' => 'text/html'));
+        ]), 200, ['Content-Type' => 'text/html']);
     }
 }

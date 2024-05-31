@@ -60,13 +60,24 @@ class FlexibleEntityDenormalizer implements DenormalizerInterface
 
     /**
      * {@inheritdoc}
+     * @param mixed $data
+     * @param string $type
+     * @param string|null $format
+     * @param array $context
      * @throws \ReflectionException
      */
-    public function supportsDenormalization(mixed $data, string $type, string $format = null): bool
+    public function supportsDenormalization(mixed $data, string $type, string $format = null, array $context = []): bool
     {
         $reflection = new \ReflectionClass($type);
         $interfaces = $reflection->getInterfaces();
 
         return isset($interfaces[FlexibleEntityInterface::class]) && is_array($data);
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            FlexibleEntityInterface::class => true,
+        ];
     }
 }

@@ -34,6 +34,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     }
 
     /**
+     * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
     public function getTypes(string $class, string $property, array $context = array()): ?array
@@ -63,10 +64,6 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     /**
      * Get the sql type of $property
      *
-     * @param Session $session
-     * @param string $model_name
-     * @param string $property
-     * @return string
      * @throws FoundationException
      * @throws ModelException
      */
@@ -81,9 +78,6 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     /**
      * Get the corresponding php type of a $sql_type type
      *
-     * @param Session $session
-     * @param string $sql_type
-     * @return string
      * @throws FoundationException
      */
     private function getPommType(Session $session, string $sql_type): string
@@ -100,12 +94,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
         return $pomm_types[$sql_type];
     }
 
-    /**
-     * Create a new Type for the $pomm_type type
-     *
-     * @param string $pomm_type
-     * @return Type
-     */
+    /** Create a new Type for the $pomm_type type */
     private function createPropertyType(string $pomm_type): Type
     {
         $class = null;
