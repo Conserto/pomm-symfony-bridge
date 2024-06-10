@@ -17,7 +17,8 @@ use PommProject\Foundation\Pomm;
 use PommProject\ModelManager\Exception\ModelException;
 use PommProject\ModelManager\Session;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\PropertyInfo\Type as LegacyType;
+use Symfony\Component\TypeInfo\Type;
 
 /**
  * Extract data using pomm.
@@ -37,7 +38,27 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
+    public function getType(string $class, string $property, array $context = array()): ?Type
+    {
+        return $this->doGetType($class, $property, $context);
+    }
+
+    /**
+     * @throws FoundationException|ModelException
+     * @see PropertyTypeExtractorInterface
+     */
     public function getTypes(string $class, string $property, array $context = array()): ?array
+    {
+        return [
+            $this->doGetType($class, $property, $context, true)
+        ];
+    }
+
+    /**
+     * @throws ModelException
+     * @throws FoundationException
+     */
+    private function doGetType(string $class, string $property, array $context = array(), bool $legacy = false): LegacyType|Type|null
     {
         if (isset($context['session:name'])) {
             /** @var Session $session */
@@ -47,18 +68,16 @@ class TypeExtractor implements PropertyTypeExtractorInterface
             $session = $this->pomm->getDefaultSession();
         }
 
-        $model_name = $context['model:name'] ?? "{$class}Model";
+        $modelName = $context['model:name'] ?? "{$class}Model";
 
-        if (!class_exists($model_name)) {
+        if (!class_exists($modelName)) {
             return null;
         }
 
-        $sql_type = $this->getSqlType($session, $model_name, $property);
-        $pomm_type = $this->getPommType($session, $sql_type);
+        $sqlType = $this->getSqlType($session, $modelName, $property);
+        $pommType = $this->getPommType($session, $sqlType);
 
-        return [
-            $this->createPropertyType($pomm_type)
-        ];
+        return $this->createPropertyType($pommType, $legacy);
     }
 
     /**
@@ -67,9 +86,9 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException
      * @throws ModelException
      */
-    private function getSqlType(Session $session, string $model_name, string $property): string
+    private function getSqlType(Session $session, string $modelName, string $property): string
     {
-        $model = $session->getModel($model_name);
+        $model = $session->getModel($modelName);
         $structure = $model->getStructure();
 
         return $structure->getTypeFor($property);
@@ -85,28 +104,28 @@ class TypeExtractor implements PropertyTypeExtractorInterface
         /** @var ConverterPooler $converterPooler */
         $converterPooler =  $session->getPoolerForType('converter');
 
-        $pomm_types = $converterPooler->getConverterHolder()->getTypesWithConverterName();
+        $pommTypes = $converterPooler->getConverterHolder()->getTypesWithConverterName();
 
-        if (!isset($pomm_types[$sql_type])) {
+        if (!isset($pommTypes[$sql_type])) {
             throw new \RuntimeException("Invalid $sql_type");
         }
 
-        return $pomm_types[$sql_type];
+        return $pommTypes[$sql_type];
     }
 
     /** Create a new Type for the $pomm_type type */
-    private function createPropertyType(string $pomm_type): Type
+    private function createPropertyType(string $pomm_type, bool $legacy = false): LegacyType|Type
     {
         $class = null;
 
         $type = match ($pomm_type) {
-            'JSON', 'Array' => Type::BUILTIN_TYPE_ARRAY,
-            'Binary', 'String' => Type::BUILTIN_TYPE_STRING,
-            'Boolean' => Type::BUILTIN_TYPE_BOOL,
-            'Number' => Type::BUILTIN_TYPE_INT,
-            default => Type::BUILTIN_TYPE_OBJECT,
+            'JSON', 'Array' => $legacy ? LegacyType::BUILTIN_TYPE_ARRAY : Type::array(),
+            'Binary', 'String' => $legacy ? LegacyType::BUILTIN_TYPE_STRING : Type::string(),
+            'Boolean' => $legacy ? LegacyType::BUILTIN_TYPE_BOOL : Type::bool(),
+            'Number' => $legacy ? LegacyType::BUILTIN_TYPE_INT : Type::int(),
+            default => $legacy ? LegacyType::BUILTIN_TYPE_OBJECT : Type::object(),
         };
 
-        return new Type($type, false, $class);
+        return $legacy ? new LegacyType($type, false, $class) : $type;
     }
 }
