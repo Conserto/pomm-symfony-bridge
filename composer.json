@@ -25,7 +25,7 @@
     },
     "suggest": {
         "conserto/pomm-cli": "~3.0",
-        "symfony/symfony": "~5.0|~6.0|~7.0"
+        "symfony/symfony": "~5.0|~6.0|~7.1"
     },
     "autoload": {
         "psr-4": {
