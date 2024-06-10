@@ -8,7 +8,7 @@
     "license":  "MIT",
     "authors":  [ { "name": "Grégoire HUBERT", "email": "hubert.greg@gmail.com" }, { "name": "Jérôme MACIAS", "email": "jerome.macias@gmail.com" } ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "conserto/pomm-foundation": "^3.0",
         "conserto/pomm-model-manager": "^3.0",
         "symfony/http-foundation": "~5.0|~6.0|~7.1",
