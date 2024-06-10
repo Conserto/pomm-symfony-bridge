@@ -17,8 +17,7 @@ use PommProject\Foundation\Pomm;
 use PommProject\ModelManager\Exception\ModelException;
 use PommProject\ModelManager\Session;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
-use Symfony\Component\PropertyInfo\Type as LegacyType;
-use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\PropertyInfo\Type;
 
 /**
  * Extract data using pomm.
@@ -35,10 +34,11 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     }
 
     /**
+     * !! For symfony 7.1 support !!
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
-    public function getType(string $class, string $property, array $context = array()): ?Type
+    public function getType(string $class, string $property, array $context = array())
     {
         return $this->doGetType($class, $property, $context);
     }
@@ -50,7 +50,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     public function getTypes(string $class, string $property, array $context = array()): ?array
     {
         return [
-            $this->doGetType($class, $property, $context, true)
+            $this->doGetType($class, $property, $context)
         ];
     }
 
@@ -58,7 +58,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws ModelException
      * @throws FoundationException
      */
-    private function doGetType(string $class, string $property, array $context = array(), bool $legacy = false): LegacyType|Type|null
+    private function doGetType(string $class, string $property, array $context = array()): ?Type
     {
         if (isset($context['session:name'])) {
             /** @var Session $session */
@@ -77,7 +77,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
         $sqlType = $this->getSqlType($session, $modelName, $property);
         $pommType = $this->getPommType($session, $sqlType);
 
-        return $this->createPropertyType($pommType, $legacy);
+        return $this->createPropertyType($pommType);
     }
 
     /**
@@ -113,19 +113,19 @@ class TypeExtractor implements PropertyTypeExtractorInterface
         return $pommTypes[$sql_type];
     }
 
-    /** Create a new Type for the $pomm_type type */
-    private function createPropertyType(string $pomm_type, bool $legacy = false): LegacyType|Type
+    /** Create a new Type for the $pommType type */
+    private function createPropertyType(string $pommType): Type
     {
         $class = null;
 
-        $type = match ($pomm_type) {
-            'JSON', 'Array' => $legacy ? LegacyType::BUILTIN_TYPE_ARRAY : Type::array(),
-            'Binary', 'String' => $legacy ? LegacyType::BUILTIN_TYPE_STRING : Type::string(),
-            'Boolean' => $legacy ? LegacyType::BUILTIN_TYPE_BOOL : Type::bool(),
-            'Number' => $legacy ? LegacyType::BUILTIN_TYPE_INT : Type::int(),
-            default => $legacy ? LegacyType::BUILTIN_TYPE_OBJECT : Type::object(),
+        $type = match ($pommType) {
+            'JSON', 'Array' => Type::BUILTIN_TYPE_ARRAY,
+            'Binary', 'String' => Type::BUILTIN_TYPE_STRING,
+            'Boolean' => Type::BUILTIN_TYPE_BOOL,
+            'Number' => Type::BUILTIN_TYPE_INT,
+            default => Type::BUILTIN_TYPE_OBJECT,
         };
 
-        return $legacy ? new LegacyType($type, false, $class) : $type;
+        return new Type($type, false, $class);
     }
 }

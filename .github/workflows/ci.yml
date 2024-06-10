@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -29,12 +29,16 @@ jobs:
       - name: Build
         run: |
           composer install --dev
+      - name: Setup PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
       - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
       - name: PHPStan Static Analysis
-        uses: php-actions/phpstan@v3
+        uses: php-actions/phpstan@v2
         with:
           configuration: phpstan.neon
           memory_limit: 256M
