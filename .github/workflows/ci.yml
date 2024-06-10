@@ -34,7 +34,7 @@ jobs:
         with:
           php-version: '8.2'
       - name: PHPStan Static Analysis
-        uses: php-actions/phpstan@v2
+        uses: php-actions/phpstan@v3
         with:
           configuration: phpstan.neon
           memory_limit: 256M
