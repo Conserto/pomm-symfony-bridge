@@ -16,8 +16,7 @@
         "symfony/serializer": "~5.0|~6.0|~7.0",
         "symfony/property-info": "~5.0|~6.0|~7.0",
         "symfony/stopwatch": "~5.0|~6.0|~7.0",
-        "twig/twig": "~3.0",
-        "symfony/type-info": "^7.1"
+        "twig/twig": "~3.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "~3.7",
