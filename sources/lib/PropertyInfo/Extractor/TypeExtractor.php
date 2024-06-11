@@ -38,7 +38,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
-    public function getType(string $class, string $property, array $context = array())
+    public function getType(string $class, string $property, array $context = array()): ?Type
     {
         return $this->doGetType($class, $property, $context);
     }
@@ -47,11 +47,11 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
-    public function getTypes(string $class, string $property, array $context = array()): ?array
+    public function getTypes(string $class, string $property, array $context = array()): array
     {
-        return [
+        return array_filter([
             $this->doGetType($class, $property, $context)
-        ];
+        ]);
     }
 
     /**
