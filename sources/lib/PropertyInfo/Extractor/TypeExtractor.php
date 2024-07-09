@@ -34,33 +34,10 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     }
 
     /**
-     * !! For symfony 7.1 support !!
-     * @throws FoundationException|ModelException
-     * @see PropertyTypeExtractorInterface
-     */
-    public function getType(string $class, string $property, array $context = array()): ?Type
-    {
-        return $this->doGetType($class, $property, $context);
-    }
-
-    /**
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
     public function getTypes(string $class, string $property, array $context = array()): ?array
-    {
-        $type = $this->doGetType($class, $property, $context);
-        if (null === $type) {
-            return null;
-        }
-        return [$type];
-    }
-
-    /**
-     * @throws ModelException
-     * @throws FoundationException
-     */
-    private function doGetType(string $class, string $property, array $context = array()): ?Type
     {
         if (isset($context['session:name'])) {
             /** @var Session $session */
@@ -70,16 +47,18 @@ class TypeExtractor implements PropertyTypeExtractorInterface
             $session = $this->pomm->getDefaultSession();
         }
 
-        $modelName = $context['model:name'] ?? "{$class}Model";
+        $model_name = $context['model:name'] ?? "{$class}Model";
 
-        if (!class_exists($modelName)) {
+        if (!class_exists($model_name)) {
             return null;
         }
 
-        $sqlType = $this->getSqlType($session, $modelName, $property);
-        $pommType = $this->getPommType($session, $sqlType);
+        $sql_type = $this->getSqlType($session, $model_name, $property);
+        $pomm_type = $this->getPommType($session, $sql_type);
 
-        return $this->createPropertyType($pommType);
+        return [
+            $this->createPropertyType($pomm_type)
+        ];
     }
 
     /**
@@ -88,9 +67,9 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException
      * @throws ModelException
      */
-    private function getSqlType(Session $session, string $modelName, string $property): string
+    private function getSqlType(Session $session, string $model_name, string $property): string
     {
-        $model = $session->getModel($modelName);
+        $model = $session->getModel($model_name);
         $structure = $model->getStructure();
 
         return $structure->getTypeFor($property);
@@ -106,21 +85,21 @@ class TypeExtractor implements PropertyTypeExtractorInterface
         /** @var ConverterPooler $converterPooler */
         $converterPooler =  $session->getPoolerForType('converter');
 
-        $pommTypes = $converterPooler->getConverterHolder()->getTypesWithConverterName();
+        $pomm_types = $converterPooler->getConverterHolder()->getTypesWithConverterName();
 
-        if (!isset($pommTypes[$sql_type])) {
+        if (!isset($pomm_types[$sql_type])) {
             throw new \RuntimeException("Invalid $sql_type");
         }
 
-        return $pommTypes[$sql_type];
+        return $pomm_types[$sql_type];
     }
 
-    /** Create a new Type for the $pommType type */
-    private function createPropertyType(string $pommType): Type
+    /** Create a new Type for the $pomm_type type */
+    private function createPropertyType(string $pomm_type): Type
     {
         $class = null;
 
-        $type = match ($pommType) {
+        $type = match ($pomm_type) {
             'JSON', 'Array' => Type::BUILTIN_TYPE_ARRAY,
             'Binary', 'String' => Type::BUILTIN_TYPE_STRING,
             'Boolean' => Type::BUILTIN_TYPE_BOOL,
