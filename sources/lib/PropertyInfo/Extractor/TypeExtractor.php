@@ -37,7 +37,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
-    public function getType(string $class, string $property, array $context = array()): ?Type
+    public function getType(string $class, string $property, array $context = []): ?Type
     {
         return $this->doGetType($class, $property, $context);
     }
@@ -46,7 +46,8 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
-    public function getTypes(string $class, string $property, array $context = array()): ?array
+    #[\Override]
+    public function getTypes(string $class, string $property, array $context = []): ?array
     {
         $type = $this->doGetType($class, $property, $context);
         if (null === $type) {
@@ -59,7 +60,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      * @throws ModelException
      * @throws FoundationException
      */
-    private function doGetType(string $class, string $property, array $context = array()): ?Type
+    private function doGetType(string $class, string $property, array $context = []): ?Type
     {
         if (isset($context['session:name'])) {
             /** @var Session $session */

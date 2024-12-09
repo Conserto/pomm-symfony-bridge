@@ -16,17 +16,20 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class FlexibleEntityNormalizer implements NormalizerInterface
 {
     /** {@inheritdoc} */
-    public function normalize(mixed $object, string $format = null, array $context = array()): array
+    #[\Override]
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
     {
         return $object->extract();
     }
 
     /** {@inheritdoc} */
-    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
+    #[\Override]
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof FlexibleEntityInterface;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [
