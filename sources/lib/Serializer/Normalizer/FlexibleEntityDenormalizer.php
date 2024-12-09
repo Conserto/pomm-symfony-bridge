@@ -42,7 +42,6 @@ class FlexibleEntityDenormalizer implements DenormalizerInterface
      * @throws ModelException
      * @throws \ReflectionException
      */
-    #[\Override]
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): FlexibleEntityInterface
     {
         if (isset($context['session:name'])) {
@@ -67,7 +66,6 @@ class FlexibleEntityDenormalizer implements DenormalizerInterface
      * @param array $context
      * @throws \ReflectionException
      */
-    #[\Override]
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         $reflection = new \ReflectionClass($type);
@@ -76,7 +74,6 @@ class FlexibleEntityDenormalizer implements DenormalizerInterface
         return isset($interfaces[FlexibleEntityInterface::class]) && is_array($data);
     }
 
-    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [

@@ -67,7 +67,6 @@ class DatabaseDataCollector extends DataCollector
     /**
      * {@inheritdoc}
      */
-    #[\Override]
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         if ($exception instanceof SqlException) {
@@ -100,7 +99,6 @@ class DatabaseDataCollector extends DataCollector
     }
 
     /** Return profiler identifier. */
-    #[\Override]
     public function getName(): string
     {
         return 'pomm';
@@ -115,7 +113,6 @@ class DatabaseDataCollector extends DataCollector
         ];
     }
 
-    #[\Override]
     public function reset(): void
     {
         $this->stopwatch?->reset();

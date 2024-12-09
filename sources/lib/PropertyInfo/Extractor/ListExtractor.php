@@ -34,7 +34,6 @@ class ListExtractor implements PropertyListExtractorInterface
      * @throws FoundationException|ModelException
      * @see PropertyListExtractorInterface
      */
-    #[\Override]
     public function getProperties(string $class, array $context = []): ?array
     {
         if (isset($context['session:name'])) {
