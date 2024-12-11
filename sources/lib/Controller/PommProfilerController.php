@@ -58,7 +58,7 @@ class PommProfilerController
                     '@WebProfiler/Profiler/info.html.twig',
                     ['about' => 'no_token', 'token' => $token, 'request' => $request, 'profile_type' => $profileType]
                 ),
-                200,
+                Response::HTTP_OK,
                 ['Content-Type' => 'text/html']
             );
         }
@@ -93,6 +93,6 @@ class PommProfilerController
             'request' => $request,
             'query_index' => $index_query,
             'explain' => $explain,
-        ]), 200, ['Content-Type' => 'text/html']);
+        ]), Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 }
