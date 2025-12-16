@@ -19,16 +19,19 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php: [ '8.4', '8.5' ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Setup PHP 8.4
+      - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ matrix.php }}
 
       # Runs a single command using the runners shell
       - name: Build
@@ -41,7 +44,7 @@ jobs:
           configuration: phpstan.neon
           memory_limit: 256M
           path: ''
-          php_version: 8.4
+          php_version: ${{ matrix.php }}
 
       # Runs a set of commands using the runners shell
       - name: PHPCS
