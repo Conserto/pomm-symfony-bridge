@@ -16,7 +16,7 @@ use PommProject\Foundation\Pomm;
 use PommProject\ModelManager\Exception\ModelException;
 use PommProject\ModelManager\Session;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\TypeInfo\Type;
 
 /**
  * Extract data using pomm.
@@ -33,7 +33,6 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     }
 
     /**
-     * !! For symfony 7.1 support !!
      * @throws FoundationException|ModelException
      * @see PropertyTypeExtractorInterface
      */
@@ -43,8 +42,9 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     }
 
     /**
+     * @deprecated since Symfony 8.0, use getType() instead
+     *
      * @throws FoundationException|ModelException
-     * @see PropertyTypeExtractorInterface
      */
     public function getTypes(string $class, string $property, array $context = []): ?array
     {
@@ -117,16 +117,12 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     /** Create a new Type for the $pommType type */
     private function createPropertyType(string $pommType): Type
     {
-        $class = null;
-
-        $type = match ($pommType) {
-            'JSON', 'Array' => Type::BUILTIN_TYPE_ARRAY,
-            'Binary', 'String' => Type::BUILTIN_TYPE_STRING,
-            'Boolean' => Type::BUILTIN_TYPE_BOOL,
-            'Number' => Type::BUILTIN_TYPE_INT,
-            default => Type::BUILTIN_TYPE_OBJECT,
+        return match ($pommType) {
+            'JSON', 'Array' => Type::array(),
+            'Binary', 'String' => Type::string(),
+            'Boolean' => Type::bool(),
+            'Number' => Type::int(),
+            default => Type::object(),
         };
-
-        return new Type($type, false, $class);
     }
 }
