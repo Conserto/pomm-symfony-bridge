@@ -44,14 +44,27 @@ class TypeExtractor implements PropertyTypeExtractorInterface
     /**
      * @deprecated since Symfony 8.0, use getType() instead
      *
+     * @return object[]|null
      * @throws FoundationException|ModelException
      */
     public function getTypes(string $class, string $property, array $context = []): ?array
     {
-        $type = $this->doGetType($class, $property, $context);
-        if (null === $type) {
+        if (!class_exists(\Symfony\Component\PropertyInfo\Type::class)) {
             return null;
         }
+
+        $session = $this->getSession($context);
+        $modelName = $context['model:name'] ?? "{$class}Model";
+
+        if (!class_exists($modelName)) {
+            return null;
+        }
+
+        $sqlType = $this->getSqlType($session, $modelName, $property);
+        $pommType = $this->getPommType($session, $sqlType);
+
+        $type = $this->createLegacyPropertyType($pommType);
+
         return [$type];
     }
 
@@ -61,14 +74,7 @@ class TypeExtractor implements PropertyTypeExtractorInterface
      */
     private function doGetType(string $class, string $property, array $context = []): ?Type
     {
-        if (isset($context['session:name'])) {
-            /** @var Session $session */
-            $session = $this->pomm->getSession($context['session:name']);
-        } else {
-            /** @var Session $session */
-            $session = $this->pomm->getDefaultSession();
-        }
-
+        $session = $this->getSession($context);
         $modelName = $context['model:name'] ?? "{$class}Model";
 
         if (!class_exists($modelName)) {
@@ -79,6 +85,19 @@ class TypeExtractor implements PropertyTypeExtractorInterface
         $pommType = $this->getPommType($session, $sqlType);
 
         return $this->createPropertyType($pommType);
+    }
+
+    private function getSession(array $context): Session
+    {
+        if (isset($context['session:name'])) {
+            /** @var Session $session */
+            $session = $this->pomm->getSession($context['session:name']);
+        } else {
+            /** @var Session $session */
+            $session = $this->pomm->getDefaultSession();
+        }
+
+        return $session;
     }
 
     /**
@@ -124,5 +143,20 @@ class TypeExtractor implements PropertyTypeExtractorInterface
             'Number' => Type::int(),
             default => Type::object(),
         };
+    }
+
+    /** Create a new LegacyType for the $pommType type */
+    private function createLegacyPropertyType(string $pommType): object
+    {
+        $class = "Symfony\Component\PropertyInfo\Type";
+        $type = match ($pommType) {
+            'JSON', 'Array' => constant("$class::BUILTIN_TYPE_ARRAY"),
+            'Binary', 'String' => constant("$class::BUILTIN_TYPE_STRING"),
+            'Boolean' => constant("$class::BUILTIN_TYPE_BOOL"),
+            'Number' => constant("$class::BUILTIN_TYPE_INT"),
+            default => constant("$class::BUILTIN_TYPE_OBJECT"),
+        };
+
+        return new $class($type); // @phpstan-ignore-line
     }
 }
