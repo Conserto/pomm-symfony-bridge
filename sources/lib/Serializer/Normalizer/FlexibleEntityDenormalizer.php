@@ -42,8 +42,12 @@ class FlexibleEntityDenormalizer implements DenormalizerInterface
      * @throws ModelException
      * @throws \ReflectionException
      */
-    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): FlexibleEntityInterface
-    {
+    public function denormalize(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = []
+    ): FlexibleEntityInterface {
         if (isset($context['session:name'])) {
             /** @var Session $session */
             $session = $this->pomm->getSession($context['session:name']);
@@ -66,8 +70,12 @@ class FlexibleEntityDenormalizer implements DenormalizerInterface
      * @param array $context
      * @throws \ReflectionException
      */
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = []
+    ): bool {
         $reflection = new \ReflectionClass($type);
         $interfaces = $reflection->getInterfaces();
 

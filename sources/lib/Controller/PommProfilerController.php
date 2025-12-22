@@ -34,8 +34,11 @@ use Twig\Error\SyntaxError;
  */
 class PommProfilerController
 {
-    public function __construct(private readonly Profiler $profiler, private readonly Environment $twig, private readonly Pomm $pomm)
-    {
+    public function __construct(
+        private readonly Profiler $profiler,
+        private readonly Environment $twig,
+        private readonly Pomm $pomm
+    ) {
     }
 
     /**
